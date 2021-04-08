@@ -1,0 +1,29 @@
+{
+  "name": "aem-cloudservice-docker",
+  "version": "1.0.0",
+  "description": "Utility used to start AEM Forms as a Cloud Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pat-lego/aem-cloudservice-docker.git"
+  },
+  "keywords": [
+    "nodejs",
+    "docker",
+    "aem"
+  ],
+  "author": "pat-lego",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pat-lego/aem-cloudservice-docker/issues"
+  },
+  "homepage": "https://github.com/pat-lego/aem-cloudservice-docker#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^7.2.0",
+    "shelljs": "^0.8.4"
+  }
+}

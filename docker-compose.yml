@@ -1,0 +1,17 @@
+version: "3.9"
+services: 
+  aem:
+    environment:
+       - TZ=America/Montreal
+    image: openjdk:11.0.10-jdk
+    build:
+      context: ./
+      dockerfile: AEM.Dockerfile
+    image: pat-lego.aem.dev:aem-cs
+    volumes: 
+      - ./.aem:/opt/adobe/aem
+    restart: always
+    ports:
+      - "4502:4502"
+      - "8000:8000"
+    
