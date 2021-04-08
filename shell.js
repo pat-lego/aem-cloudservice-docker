@@ -55,7 +55,31 @@ const test = (arg, path) => {
     return shell.test(arg, path);
 }
 
+/**
+ * Create a a folder in a designated path
+ * @param {string} arg -p Create intermediate directories
+ * @param {string[]} paths An array of paths
+ * 
+ * @returns {number} Exit code of the mkdir
+ */
+const mkdir = (arg, paths) => {
+    if (arg) {
+        return shell.mkdir(arg, paths).code;
+    } else {
+        return shell.mkdir(paths).code;
+    }
+}
+
+const cp = (arg, from, to) => {
+    if (arg) {
+        return shell.cp(arg, from, to).code;
+    } else {
+        return shell.cp(from, to);
+    }
+}
 
 module.exports.which = isInstalled;
 module.exports.cmd = exec;
+module.exports.mkdir = mkdir;
+module.exports.cp = cp;
 module.exports.test = test;

@@ -1,5 +1,4 @@
 const log = require('./log');
-
 const parser = require('./cliParser');
 const commands = require('./commands/commands');
 
@@ -9,4 +8,6 @@ log.info("Parsing the CLI parameters")
 const args = parser.parse(process.argv);
 log.info("Successfully parsed the CLI args");
 
-commands.build.run(args);
+commands.build.run(args).then(() => {
+    console.log("run command has completed");
+});
