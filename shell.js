@@ -74,7 +74,7 @@ const cp = (arg, from, to) => {
     if (arg) {
         return shell.cp(arg, from, to).code;
     } else {
-        return shell.cp(from, to);
+        return shell.cp(from, to).code;
     }
 }
 

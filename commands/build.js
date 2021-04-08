@@ -50,15 +50,33 @@ const start = async (args) => {
            log.info("Reading the error.log file looking for startup complete message");
         } while (!line.includes("Application startup completed in"));
 
+        log.info("Application startup completed about to sleep 10 seconds");
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        log.info("Sleep completed about to stop the container");
+
+        if (shell.cmd('docker-compose stop') !== 0) {
+            log.error("Failed to stop the docker-compose container");
+            process.exit(1);
+        }
+        log.info("Completed the docker-compse stop command");
+
         if (shell.mkdir('-p', `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/install`) !== 0) {
             log.error("Failed to create the install folder in the crx-quickstart");
             process.exit(1);
         }
+        log.info("Created the install folder under the crx-quickstart");
 
         if (shell.cp(undefined, `${args[cli.CMD_BUILD].path}/.aem/aem-forms-addon.far`,`${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/install`) !== 0 )  {
             log.error("Failed to copy the aem-forms-addon folder in the crx-quickstart");
             process.exit(1);
         }
+        log.info("Copied the AEM Forms Addon Far file to the folder under the crx-quickstart");
+
+        if (shell.cmd('docker-compose start') !== 0) {
+            log.error("Failed to start the docker-compose container");
+            process.exit(1);
+        }
+        log.info("Starting the docker-compose container");
     }
 
 }
