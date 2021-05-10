@@ -8,6 +8,10 @@ const log = require('../log');
  * args Map<string, Map>
  */
 const run = async (args) => {
+    const result = {
+        hasRun: false
+    };
+
     // Only run this command is CMD_BUILD in args
     if (cli.CMD_BUILD in args) {
         if (!validate(args)) {
@@ -15,8 +19,9 @@ const run = async (args) => {
         }
 
         await start(args);
+        result.hasRun = true;
     }
-
+    return result;
 }
 
 const start = async (args) => {

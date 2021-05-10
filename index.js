@@ -8,6 +8,14 @@ log.info("Parsing the CLI parameters")
 const args = parser.parse(process.argv);
 log.info("Successfully parsed the CLI args");
 
-commands.build.run(args).then(() => {
-    console.log("run command has completed");
+commands.build.run(args).then((result) => {
+    if (result.hasRun === true) {
+        console.log("build command has completed");
+    }
+});
+
+commands.stop.run(args).then((result) => {
+    if (result.hasRun === true) {
+        console.log("stop command has completed");
+    }
 });
