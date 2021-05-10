@@ -58,7 +58,7 @@ const start = async (args) => {
             log.error("Failed to stop the docker-compose container");
             process.exit(1);
         }
-        log.info("Completed the docker-compse stop command");
+        log.info("Completed the docker-compose stop command");
 
         if (shell.mkdir('-p', `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/install`) !== 0) {
             log.error("Failed to create the install folder in the crx-quickstart");
@@ -77,6 +77,22 @@ const start = async (args) => {
             process.exit(1);
         }
         log.info("Starting the docker-compose container");
+
+        log.info("About to sleep script for 5 minutes while server comes up");
+        await new Promise(resolve => setTimeout(resolve, 300000));
+        log.info("Script awake now going to stop the docker container")
+
+        if (shell.cmd('docker-compose stop') !== 0) {
+            log.error("Failed to stop the docker-compose container");
+            process.exit(1);
+        }
+        log.info("Completed the docker-compose stop command");
+
+        if (shell.cmd('docker-compose start') !== 0) {
+            log.error("Failed to stop the docker-compose container");
+            process.exit(1);
+        }
+        log.info("Completed the docker-compose start command");
     }
 
 }
