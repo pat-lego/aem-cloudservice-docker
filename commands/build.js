@@ -35,7 +35,7 @@ const start = async (args) => {
         process.exit(1);
     }
 
-    if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up -d`) !== 0) {
+    if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up -d aem-cs`) !== 0) {
         log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up command`);
         process.exit(1);
     }
@@ -59,7 +59,7 @@ const start = async (args) => {
         await new Promise(resolve => setTimeout(resolve, 10000));
         log.info("Sleep completed about to stop the container");
 
-        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop`) !== 0) {
+        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop aem-cs`) !== 0) {
             log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
             process.exit(1);
         }
@@ -77,7 +77,7 @@ const start = async (args) => {
         }
         log.info("Copied the AEM Forms Addon Far file to the folder under the crx-quickstart");
 
-        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start`) !== 0) {
+        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start aem-cs`) !== 0) {
             log.error(`Failed to start the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
             process.exit(1);
         }
@@ -87,13 +87,13 @@ const start = async (args) => {
         await new Promise(resolve => setTimeout(resolve, 300000));
         log.info("Script awake now going to stop the docker container")
 
-        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop`) !== 0) {
+        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop aem-cs`) !== 0) {
             log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
             process.exit(1);
         }
         log.info(`Completed the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop command`);
 
-        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start`) !== 0) {
+        if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start aem-cs`) !== 0) {
             log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
             process.exit(1);
         }

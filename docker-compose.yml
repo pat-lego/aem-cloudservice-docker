@@ -1,8 +1,9 @@
 version: "3.9"
 services: 
-  aem:
+  aem-cs:
     environment:
        - TZ=America/Montreal
+       - NATIVE_SERVICE_HOST=aem-formsdocservice-native
     image: openjdk:11.0.10-jdk
     build:
       context: ./
@@ -14,4 +15,21 @@ services:
     ports:
       - "4502:4502"
       - "8000:8000"
-    
+  aem-formsdocservice-native:
+    image: aem-ethos/formsdocservice-native-sdk:1.0.110
+    volumes:
+      - type: bind
+        source: /Users/patriquelegault/Documents/repos/aem-cloudservice-docker/.aem/crx-quickstart/fonts
+        target: /mnt/shared/fonts/adobe
+      - type: bind
+        source: /Users/patriquelegault/Documents/repos/aem-cloudservice-docker/.aem/crx-quickstart/logs
+        target: /logging/forms-docservices
+    ports:
+      - 8007:8007
+      - 8008:8008
+    environment:
+      - REGION_NAME=local
+      - ENVIRONMENT_NAME=local
+      - SDK_TEMP_DIR=/opt/adobe/aem/crx-quickstart/temp/sdk
+      - SHARED_TEMP_DIR=/mnt/shared/temp
+
