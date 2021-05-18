@@ -11,7 +11,7 @@ const run = async (args) => {
     if (cli.CMD_STOP in args) {
         log.info("About to stop the AEM dev environment");
 
-        if (shell.cmd(`docker-compose -f ${args[cli.CMD_STOP].path}/docker-compose.yml stop`) !== 0) {
+        if (shell.cmd(`docker compose -f ${args[cli.CMD_STOP].path}/docker-compose.yml stop`) !== 0) {
             log.error("Failed to stop the docker compose container");
             process.exit(1);
         }
