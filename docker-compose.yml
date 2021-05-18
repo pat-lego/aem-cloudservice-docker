@@ -30,6 +30,6 @@ services:
     environment:
       - REGION_NAME=local
       - ENVIRONMENT_NAME=local
-      - SDK_TEMP_DIR=/opt/adobe/aem/crx-quickstart/temp/sdk
+      - SDK_TEMP_DIR=/opt/adobe/aem/crx-quickstart/temp
       - SHARED_TEMP_DIR=/mnt/shared/temp
 
