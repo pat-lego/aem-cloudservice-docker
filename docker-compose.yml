@@ -19,10 +19,10 @@ services:
     image: aem-ethos/formsdocservice-native-sdk:1.0.110
     volumes:
       - type: bind
-        source: /Users/patriquelegault/Documents/repos/aem-cloudservice-docker/.aem/crx-quickstart/fonts
+        source: ${AEM_FONTS_DIR}
         target: /mnt/shared/fonts/adobe
       - type: bind
-        source: /Users/patriquelegault/Documents/repos/aem-cloudservice-docker/.aem/crx-quickstart/logs
+        source: ${AEM_LOGS_DIR}
         target: /logging/forms-docservices
     ports:
       - 8007:8007
@@ -32,4 +32,6 @@ services:
       - ENVIRONMENT_NAME=local
       - SDK_TEMP_DIR=/opt/adobe/aem/crx-quickstart/temp
       - SHARED_TEMP_DIR=/mnt/shared/temp
+    depends_on: 
+        - aem-cs
 

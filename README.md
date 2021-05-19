@@ -12,10 +12,14 @@ This script automates the creation of an AEM Forms as a Cloud Service instance.
 3. Make sure you have the following installed on your computer
   - NodeJS
   - Java
-  - Docker
-  - docker-compose
-4. Run a `npm install`
-5. Run `node index.js build`
+  - Docker version 20.10.6+
+4. Load the Output image into the docker registry
+  - Unzip the forms add on 
+  - Unzip the forms-addon-native
+  - Run `docker load < formsdocservice-native-sdk-1.0.110.tar.gz`
+5. Run a `npm install`
+6. Run `node index.js build`
+  - Optionally you can specify the location of the AEM folder using the -p option
 
 ## Contributor
 

@@ -25,18 +25,40 @@ const run = async (args) => {
 }
 
 const start = async (args) => {
+    process.env.AEM_FONTS_DIR = fontsDir(args[cli.CMD_BUILD].path);
+    process.env.AEM_LOGS_DIR = logsDir(args[cli.CMD_BUILD].path);
+
+    await buildAEM(args);
+    buildOutput(args);
+}
+
+const buildOutput = (args) => {
+    if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build aem-formsdocservice-native`, false) !== 0) {
+        log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build aem-formsdocservice-native command`);
+        process.exit(1);
+    }
+
+    if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up -d aem-formsdocservice-native`) !== 0) {
+        log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up aem-formsdocservice-native command`);
+        process.exit(1);
+    }
+
+    log.info(`Completed the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start aem-formsdocservice-native command`);
+}
+
+const buildAEM = async (args) => {
     let buildForms = true;
     if (shell.test("-d", `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart`)) {
         buildForms = false;
     }
 
-    if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build`, false) !== 0) {
-        log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build command`);
+    if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build aem-cs`, false) !== 0) {
+        log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build aem-cs command`);
         process.exit(1);
     }
 
     if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up -d aem-cs`) !== 0) {
-        log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up command`);
+        log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml up aem-cs command`);
         process.exit(1);
     }
 
@@ -50,9 +72,9 @@ const start = async (args) => {
 
         let line = undefined;
         do {
-           line = await readLastLines.read(`${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/logs/error.log`, 1000);
-           await new Promise(resolve => setTimeout(resolve, 30000));
-           log.info("Reading the error.log file looking for startup complete message");
+            line = await readLastLines.read(`${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/logs/error.log`, 1000);
+            await new Promise(resolve => setTimeout(resolve, 30000));
+            log.info("Reading the error.log file looking for startup complete message");
         } while (!line.includes("Application startup completed in"));
 
         log.info("Application startup completed about to sleep 10 seconds");
@@ -60,10 +82,10 @@ const start = async (args) => {
         log.info("Sleep completed about to stop the container");
 
         if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop aem-cs`) !== 0) {
-            log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
+            log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml aem-cs container`);
             process.exit(1);
         }
-        log.info(`Completed the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop command`);
+        log.info(`Completed the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop aem-cs command`);
 
         if (shell.mkdir('-p', `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/install`) !== 0) {
             log.error(`Failed to create the install folder in the crx-quickstart`);
@@ -71,14 +93,14 @@ const start = async (args) => {
         }
         log.info("Created the install folder under the crx-quickstart");
 
-        if (shell.cp(undefined, `${args[cli.CMD_BUILD].path}/.aem/aem-forms-addon.far`,`${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/install`) !== 0 )  {
+        if (shell.cp(undefined, `${args[cli.CMD_BUILD].path}/.aem/aem-forms-addon.far`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/install`) !== 0) {
             log.error(`Failed to copy the aem-forms-addon folder in the crx-quickstart`);
             process.exit(1);
         }
         log.info("Copied the AEM Forms Addon Far file to the folder under the crx-quickstart");
 
         if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start aem-cs`) !== 0) {
-            log.error(`Failed to start the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
+            log.error(`Failed to start the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml aem-cs container`);
             process.exit(1);
         }
         log.info(`Starting the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
@@ -88,18 +110,17 @@ const start = async (args) => {
         log.info("Script awake now going to stop the docker container")
 
         if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop aem-cs`) !== 0) {
-            log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
+            log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml aem-cs container`);
             process.exit(1);
         }
         log.info(`Completed the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml stop command`);
 
         if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start aem-cs`) !== 0) {
-            log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml container`);
+            log.error(`Failed to stop the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml aem-cs container`);
             process.exit(1);
         }
-        log.info(`Completed the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start command`);
+        log.info(`Completed the docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml start aem-cs command`);
     }
-
 }
 
 /**
@@ -177,6 +198,14 @@ const dockerExists = (args) => {
         log.error("Docker was not located on the machine");
         return false;
     }
+}
+
+const fontsDir = (path) => {
+    return `${path}/.aem/crx-quickstart/fonts`;
+}
+
+const logsDir = (path) => {
+    return `${path}/.aem/crx-quickstart/logs`;
 }
 
 module.exports.run = run;
