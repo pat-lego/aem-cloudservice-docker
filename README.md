@@ -21,6 +21,10 @@ This script automates the creation of an AEM Forms as a Cloud Service instance.
 6. Run `node index.js build`
   - Optionally you can specify the location of the AEM folder using the -p option
 
+# Encapsulated Token Support
+
+In order to prevent the core system keys from being overwritten at runtime it is important to follow the article documented [here](https://experienceleague.adobe.com/docs/experience-manager-65/administering/security/encapsulated-token.html?lang=en) this will allow to have the same key with every build.
+
 ## Contributor
 
 [Patrique Legault](https://github.com/pat-lego)
