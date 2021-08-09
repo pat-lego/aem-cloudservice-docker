@@ -2,6 +2,15 @@
 
 This script automates the creation of an AEM Forms as a Cloud Service instance.
 
+## What to install
+
+1. [Docker](https://docs.docker.com/get-docker/)
+  - Docker version 20.10.7, build f0df350 
+2. [Node & NPM](https://nodejs.org/en/download/)
+  - Tested against v12.22.1
+3. Java
+  - Use a supported AEM version
+
 ## How to run
 
 1. Create a folder under this project called .aem
