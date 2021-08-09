@@ -3,7 +3,7 @@ const readLastLines = require('read-last-lines');
 const cli = require('../cliParser');
 const shell = require('../shell');
 const log = require('../log');
-const { Curl } = require('node-libcurl');
+const { curly } = require('node-libcurl');
 const querystring = require('querystring');
 
 /**
@@ -31,13 +31,13 @@ const start = async (args) => {
     process.env.AEM_LOGS_DIR = logsDir(args[cli.CMD_BUILD].path);
 
     await buildAEM(args);
-    await syncKeys(args);
     buildOutput(args);
+    await syncKeys(args);
 }
 
 const syncKeys = async (args) => {
     log.info("Waiting for AEM to bring up system bundles before syncing private keys");
-    await new Promise(resolve => setTimeout(resolve, 120000));
+    await new Promise(resolve => setTimeout(resolve, 300000));
 
     log.info("Copying the provided private keys to the system");
     // TODO: This is a risk since the bundle could change locations and for that reason we should iterate through and locate the bundle
@@ -45,59 +45,40 @@ const syncKeys = async (args) => {
     shell.cp(undefined, `${args[cli.CMD_BUILD].key}/master`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/launchpad/felix/bundle37/data`);
 
     log.info("Restarting the system crypto bundle to reflect new keys");
-    stopCryptoBundle(args);
-    startCryptoBundle(args);
+    await stopCryptoBundle(args);
+    await startCryptoBundle(args);
     log.info("Restart complete, keys are now in sync");
 }
 
-const stopCryptoBundle = (args) => {
-    const curl = new Curl();
-    const close = curl.close.bind(curl);
+const stopCryptoBundle = async (args) => {
+    const { statusCode, data, headers } = await curly.post('http://localhost:4502/system/console/bundles/com.adobe.granite.crypto.file', {
+        postFields: querystring.stringify({
+            action: 'stop',
+        }),
+        userpwd: "admin:admin"
+    });
 
-    curl.setOpt(Curl.option.URL, 'http://localhost:4502/system/console/bundles/com.adobe.granite.crypto.file');
-    curl.setOpt(Curl.option.POST, true)
-    curl.setOpt(Curl.option.USERPWD, "admin:admin")
-    curl.setOpt(Curl.option.POSTFIELDS, querystring.stringify({
-        action: 'stop',
-    }));
+    log.info(`Received status code of ${statusCode} when stopping the bundle`);
 
-    curl.on('end', function (statusCode, data, headers) {
-        log.info('Stop crypto bundle output')
-        log.info(statusCode);
-        log.info('---');
-        log.info(data.length);
-        log.info('---');
-        log.info(this.getInfo( 'TOTAL_TIME'));
-        
-        this.close();
-      });
-    curl.on('error', close);
-    curl.perform();
+    if (statusCode !== 200) {
+        process.exit(1);
+    }
+ 
 }
 
-const startCryptoBundle = (args) => {
-    const curl = new Curl();
-    const close = curl.close.bind(curl);
+const startCryptoBundle = async (args) => {
+    const { statusCode, data, headers } = await curly.post('http://localhost:4502/system/console/bundles/com.adobe.granite.crypto.file', {
+        postFields: querystring.stringify({
+            action: 'start',
+        }),
+        userpwd: "admin:admin"
+    });
 
-    curl.setOpt(Curl.option.URL, 'http://localhost:4502/system/console/bundles/com.adobe.granite.crypto.file');
-    curl.setOpt(Curl.option.POST, true)
-    curl.setOpt(Curl.option.USERPWD, "admin:admin")
-    curl.setOpt(Curl.option.POSTFIELDS, querystring.stringify({
-        action: 'start',
-    }));
+    log.info(`Received status code of ${statusCode} when starting the bundle`);
 
-    curl.on('end', function (statusCode, data, headers) {
-        log.info('Start crypto bundle output')
-        log.info(statusCode);
-        log.info('---');
-        log.info(data.length);
-        log.info('---');
-        log.info(this.getInfo( 'TOTAL_TIME'));
-        
-        this.close();
-      });
-    curl.on('error', close);
-    curl.perform();
+    if (statusCode !== 200) {
+        process.exit(1);
+    }
 }
 
 const buildOutput = (args) => {
