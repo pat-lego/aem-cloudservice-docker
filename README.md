@@ -17,6 +17,7 @@ This script automates the creation of an AEM Forms as a Cloud Service instance.
   - Unzip the forms add on 
   - Unzip the forms-addon-native
   - Run `docker load < formsdocservice-native-sdk-${version}.tar.gz`
+  - **Note:** To delete the image users must execute `docker image rm [image_id]` which the `image_id` can be located from the `docker images` command
 5. Run a `npm install`
 6. Run `node index.js build`
   - Optionally you can specify the location of the AEM folder using the -p option
