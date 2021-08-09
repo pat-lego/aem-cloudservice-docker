@@ -16,7 +16,7 @@ services:
       - "4502:4502"
       - "8000:8000"
   aem-formsdocservice-native:
-    image: aem-ethos/formsdocservice-native-sdk:1.0.110
+    image: aem-ethos/formsdocservice-native-sdk:1.0.114
     volumes:
       - type: bind
         source: ${AEM_FONTS_DIR}
