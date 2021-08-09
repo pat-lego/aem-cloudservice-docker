@@ -32,6 +32,20 @@ const start = async (args) => {
     buildOutput(args);
 }
 
+const syncKeys = (args) => {
+    log.info("Copying the provided private keys to the system");
+    // TODO: This is a risk since the bundle could change locations and for that reason we should iterate through and locate the bundle
+    if (shell.cp(undefined, `${args[cli.CMD_BUILD].key}/hmac`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/launchpad/felix/bundle37/data`) !== 0) {
+        log.error("Failed to sync hmac key, stopping installation");
+        process.exit(1);
+    }
+
+    if (shell.cp(undefined, `${args[cli.CMD_BUILD].key}/master`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/launchpad/felix/bundle37/data`) !== 0) {
+        log.error("Failed to sync master key, stopping installation");
+        process.exit(1);
+    }
+}
+
 const buildOutput = (args) => {
     if (shell.cmd(`docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build aem-formsdocservice-native`, false) !== 0) {
         log.error(`Failed to execute docker compose -f ${args[cli.CMD_BUILD].path}/docker-compose.yml build aem-formsdocservice-native command`);
@@ -76,6 +90,10 @@ const buildAEM = async (args) => {
             await new Promise(resolve => setTimeout(resolve, 30000));
             log.info("Reading the error.log file looking for startup complete message");
         } while (!line.includes("Application startup completed in"));
+
+        log.info("Syncing keys for AEM");
+        syncKeys(args);
+        log.info("Keys have been synced for AEM");
 
         log.info("Application startup completed about to sleep 10 seconds");
         await new Promise(resolve => setTimeout(resolve, 10000));
