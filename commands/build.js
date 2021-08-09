@@ -3,8 +3,6 @@ const readLastLines = require('read-last-lines');
 const cli = require('../cliParser');
 const shell = require('../shell');
 const log = require('../log');
-const { curly } = require('node-libcurl');
-const querystring = require('querystring');
 
 /**
  * args Map<string, Map>
@@ -32,51 +30,18 @@ const start = async (args) => {
 
     await buildAEM(args);
     buildOutput(args);
-    await syncKeys(args);
 }
 
-const syncKeys = async (args) => {
-    log.info("Waiting for AEM to bring up system bundles before syncing private keys");
-    await new Promise(resolve => setTimeout(resolve, 300000));
-
+const syncKeys = (args) => {
     log.info("Copying the provided private keys to the system");
     // TODO: This is a risk since the bundle could change locations and for that reason we should iterate through and locate the bundle
-    shell.cp(undefined, `${args[cli.CMD_BUILD].key}/hmac`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/launchpad/felix/bundle37/data`);
-    shell.cp(undefined, `${args[cli.CMD_BUILD].key}/master`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/launchpad/felix/bundle37/data`);
-
-    log.info("Restarting the system crypto bundle to reflect new keys");
-    await stopCryptoBundle(args);
-    await startCryptoBundle(args);
-    log.info("Restart complete, keys are now in sync");
-}
-
-const stopCryptoBundle = async (args) => {
-    const { statusCode, data, headers } = await curly.post('http://localhost:4502/system/console/bundles/com.adobe.granite.crypto.file', {
-        postFields: querystring.stringify({
-            action: 'stop',
-        }),
-        userpwd: "admin:admin"
-    });
-
-    log.info(`Received status code of ${statusCode} when stopping the bundle`);
-
-    if (statusCode !== 200) {
+    if (shell.cp(undefined, `${args[cli.CMD_BUILD].key}/hmac`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/launchpad/felix/bundle37/data`) !== 0) {
+        log.error("Failed to sync hmac key, stopping installation");
         process.exit(1);
     }
- 
-}
 
-const startCryptoBundle = async (args) => {
-    const { statusCode, data, headers } = await curly.post('http://localhost:4502/system/console/bundles/com.adobe.granite.crypto.file', {
-        postFields: querystring.stringify({
-            action: 'start',
-        }),
-        userpwd: "admin:admin"
-    });
-
-    log.info(`Received status code of ${statusCode} when starting the bundle`);
-
-    if (statusCode !== 200) {
+    if (shell.cp(undefined, `${args[cli.CMD_BUILD].key}/master`, `${args[cli.CMD_BUILD].path}/.aem/crx-quickstart/launchpad/felix/bundle37/data`) !== 0) {
+        log.error("Failed to sync master key, stopping installation");
         process.exit(1);
     }
 }
@@ -125,6 +90,10 @@ const buildAEM = async (args) => {
             await new Promise(resolve => setTimeout(resolve, 30000));
             log.info("Reading the error.log file looking for startup complete message");
         } while (!line.includes("Application startup completed in"));
+
+        log.info("Syncing keys for AEM");
+        syncKeys(args);
+        log.info("Keys have been synced for AEM");
 
         log.info("Application startup completed about to sleep 10 seconds");
         await new Promise(resolve => setTimeout(resolve, 10000));
