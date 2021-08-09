@@ -20,6 +20,7 @@ const buildCmd = () => {
     build
         .description("Builds the AEM Cloud instance instance")
         .option("-p, --path <type>", "Path to the .aem folder", "./")
+        .option("-k, --key <type>", "Key path for AEM", "./" )
         .action((command) => {
             cliArgs[CMD_BUILD] = command;
         });
